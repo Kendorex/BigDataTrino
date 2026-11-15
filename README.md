@@ -1,3 +1,35 @@
+# Лабораторная №4 — ETL на Trino
+
+## Запуск
+
+```powershell
+docker compose build etl
+docker compose up -d postgres clickhouse trino
+docker compose run --rm etl all
+```
+
+[Trino UI](http://localhost:8082), пользователь `lab`.
+[ClickHouse SQL](http://localhost:8124/play), пользователь и пароль `lab`.
+PostgreSQL: `localhost:5436`, база `lab_db`, пользователь и пароль `postgres`.
+
+## Проверка
+
+```powershell
+docker compose run --rm etl check
+```
+
+В ClickHouse:
+
+```sql
+SELECT count(*) AS sales, sum(sale_quantity) AS units,
+       sum(sale_total_price) AS revenue
+FROM analytics.fact_sales;
+```
+
+Ожидается: `10000 | 54623 | 2529852.12`.
+
+Исходные данные: по 5000 строк в `source.mock_data` ClickHouse и `public.mock_data` PostgreSQL. Шесть отчётов — `analytics.report_*` в ClickHouse. Повторный `etl all` пересоздаёт результат без дублей.
+
 # BigDataTrino
 Анализ больших данных - лабораторная работа №4 - ETL реализованный с помощью Trino
 
